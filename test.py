@@ -8,6 +8,7 @@
 # | 4   1  -8  5 |
 # | 0   0   5 -6 |
 #
+# and encodes the optimization of the quadratic -5x1 + -3x2 + -8x3 + -6x4 + 4x1x2 + 8x1x3 + 2x2x3 + 10x3x4
 # as described at https://arxiv.org/pdf/1811.11538.pdf
 
 from dwave_qbsolv import *
