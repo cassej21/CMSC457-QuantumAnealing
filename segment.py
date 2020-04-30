@@ -48,11 +48,26 @@ for i in range(N):
                 var_b = 10 * i + b
                 J[(var_a, var_b)] = LAMBDA
 
-# TODO: Guarantee that for each s_ik, at least one is equal to 1
+# TODO: Guarantee that for all s_ik for each i, only one is "true"
 
 print("%d couplings defined between %d variables." % (len(J.keys()), N * K))
 
-response = QBSolv().sample_ising(h, J, verbosity=2)
+response = QBSolv().sample_ising(h, J, verbosity=2) # sample / solve Ising problem
 
 print(response)
-print(list(response.samples()))
+
+clusters = list(response.samples())[0] # store clustering assignments
+clustered = np.zeros(N) # initialize empty array
+
+for key in clusters.keys():
+    key_str = str(key)
+    if key == 0: key_str = "00"
+    if key == 1: key_str = "01"
+    key_pix, key_cluster, key_status = int(key_str[:-1]), int(key_str[-1:]), clusters[key]
+    if key_status == 1:
+        clustered[key_pix] = 255
+
+clustered = np.reshape(clustered, (H, W))
+
+plt.imshow(clustered)
+plt.show()
