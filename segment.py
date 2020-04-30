@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-IMAGE = "dot.jpg" # file we are analyzing ... should only be about 32 x 32 sadly
+IMAGE = "kirby.jpg" # file we are analyzing ... should only be about 32 x 32 sadly
 
 image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_GRAYSCALE) # read image into numpy array
 
@@ -15,13 +15,17 @@ N = H * W # N = height * width
 K = 2 # cluster counts
 n = 6 # hardware precision of annealer coupling / bias
 LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda cluster constraint
+# SCALE = (2 ** n - 2) / ((N - K) * (K - 2 if K > 2 else K)) # calculate required magnitude scaling
+SCALE = 0.25
+
+print("Scaling all loss to %f" % SCALE)
 
 pixels = np.squeeze(np.reshape(image, (1, -1))) # flatten image into 1-D array
 diffs = np.zeros((N, N)) # store pairwise differences
 sums = np.zeros(N) # store sum of all pairwise differences relative to i-th pixel
 
 for idx, pix in enumerate(pixels): # for all pixels in the image...
-    diffs[idx] = (pixels - pix) / 255 # assign pairwise difference for all pixels, scaled from 0 to 1
+    diffs[idx] = (pixels - pix) * SCALE / 255 # assign pairwise difference for all pixels, scaled accordingly
     sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th pixel
 
 h = {} # intrinsic weight matrix
