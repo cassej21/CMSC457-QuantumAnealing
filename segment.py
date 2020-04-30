@@ -47,7 +47,7 @@ for i in range(N):
                 var_b = 10 * i + b
                 Q[(var_a, var_b)] = LAMBDA
 
-print("%d couplings defined." % len(Q.keys()))
+print("%d couplings defined between %d variables." % (len(Q.keys()), N * K))
 
-response = QBSolv().sample_qubo(Q)
+response = QBSolv().sample_qubo(Q, verbosity=2)
 print(response)
