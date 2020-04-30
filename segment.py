@@ -69,5 +69,8 @@ for key in clusters.keys():
 
 clustered = np.reshape(clustered, (H, W))
 
-plt.imshow(clustered)
+fig, axes = plt.subplots(1, 2)
+
+axes[0].imshow(image)
+axes[1].imshow(clustered)
 plt.show()
