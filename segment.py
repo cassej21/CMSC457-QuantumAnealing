@@ -47,6 +47,8 @@ for i in range(N):
                 var_b = 10 * i + b
                 Q[(var_a, var_b)] = LAMBDA
 
+# TODO: Guarantee that for each s_ik, at least one is equal to 1
+
 print("%d couplings defined between %d variables." % (len(Q.keys()), N * K))
 
 response = QBSolv().sample_qubo(Q, verbosity=2)
