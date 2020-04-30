@@ -24,7 +24,8 @@ for idx, pix in enumerate(pixels): # for all pixels in the image...
     diffs[idx] = (pixels - pix) / 255 # assign pairwise difference for all pixels, scaled from 0 to 1
     sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th pixel
 
-Q = {} # initialize Q matrix
+h = {} # intrinsic weight matrix
+J = {} # coupling weight matrix
 
 # assign general pairwise clustering weights - both biases and couplings
 for k in range(K): # for every cluster we have...
@@ -34,9 +35,9 @@ for k in range(K): # for every cluster we have...
             var_i = 10 * i + k # s_ik = x_(10i+k)
             var_j = 10 * j + k # s_jk = x_(10j+k)
             if i == j: # intrinsic weights (bias) indexing - for every cluster assignment (s_ik for all k in K)
-                Q[(var_i, var_j)] = sums[i] + (2 * LAMBDA * (K - 2 if K > 2 else K)) # assign weight
+                h[var_i] = sums[i] + (2 * LAMBDA * (K - 2 if K > 2 else K)) # assign weight
             else:
-                Q[(var_i, var_j)] = 0.5 * diffs[i][j] # the weighting for a cluster assignment for two vars is half their "distance"
+                J[(var_i, var_j)] = 0.5 * diffs[i][j] # the weighting for a cluster assignment for two vars is half their "distance"
 
 # assign pairwise clustering variables per pixel
 for i in range(N):
@@ -45,11 +46,13 @@ for i in range(N):
             if a != b:
                 var_a = 10 * i + a
                 var_b = 10 * i + b
-                Q[(var_a, var_b)] = LAMBDA
+                J[(var_a, var_b)] = LAMBDA
 
 # TODO: Guarantee that for each s_ik, at least one is equal to 1
 
-print("%d couplings defined between %d variables." % (len(Q.keys()), N * K))
+print("%d couplings defined between %d variables." % (len(J.keys()), N * K))
 
-response = QBSolv().sample_qubo(Q, verbosity=2)
+response = QBSolv().sample_ising(h, J, verbosity=2)
+
 print(response)
+print(list(response.samples()))
