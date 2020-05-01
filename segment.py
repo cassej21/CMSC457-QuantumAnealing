@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-IMAGE = "triangle.png" # file we are analyzing ... should only be about 32 x 32 sadly
+IMAGE = "kirby.png" # file we are analyzing ... should only be about 32 x 32 sadly
 
 image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_GRAYSCALE) # read image into numpy array
 
@@ -16,7 +16,7 @@ K = 3 # cluster counts
 n = 6 # hardware precision of annealer coupling / bias
 LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda cluster constraint
 # SCALE = (2 ** n - 2) / ((N - K) * (K - 2 if K > 2 else K)) # calculate required magnitude scaling
-SCALE = 0.25
+SCALE = 255
 
 print("Scaling all loss to %f" % SCALE)
 
