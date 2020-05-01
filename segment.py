@@ -60,27 +60,28 @@ response = QBSolv().sample_ising(h, J, verbosity=2) # sample / solve Ising probl
 
 print(response)
 
-clusters = list(response.samples())[-1] # store clustering assignments
-clustered = np.zeros(N) # initialize empty array
+clusters = list(response.samples()) # store clustering assignments
+fig, axes = plt.subplots(1, len(clusters) + 1) # create plot to map all resulting samples
 intensities = [(255.0 / (K-1)) * i for i in range(K)] # prepare intensities for displaying k clusters (from 0 to 255)
 
-# mark cluster assignments for visualization
-for key in clusters.keys():
-    # extract pixel number and cluster assignments (var. number format is {pixel}{cluster})
-    key_str = str(key)
-    # since pixel #0 cluster assignments will break this format (only {cluster}), fix manually
-    if len(key_str) == 1:
-        key_str = "0%s" % key_str
-    # extract all parameters from single number!
-    key_pix, key_cluster, key_status = int(key_str[:-1]), int(key_str[-1:]), clusters[key]
-    # if spin / state is +1, fill in cluster indicated by variable
-    if key_status == 1:
-        clustered[key_pix] = intensities[key_cluster]
+for i, clustering in enumerate(clusters): # for every low-energy solution...
+    clustered = np.zeros(N) # initialize empty array
 
-clustered = np.reshape(clustered, (H, W))
+    # mark cluster assignments for visualization
+    for key in clustering.keys():
+        # extract pixel number and cluster assignments (var. number format is {pixel}{cluster})
+        key_str = str(key)
+        # since pixel #0 cluster assignments will break this format (only {cluster}), fix manually
+        if len(key_str) == 1:
+            key_str = "0%s" % key_str
+        # extract all parameters from single number!
+        key_pix, key_cluster, key_status = int(key_str[:-1]), int(key_str[-1:]), clustering[key]
+        # if spin / state is +1, fill in cluster indicated by variable
+        if key_status == 1:
+            clustered[key_pix] = intensities[key_cluster]
 
-fig, axes = plt.subplots(1, 2)
+    clustered = np.reshape(clustered, (H, W))
+    axes[i + 1].imshow(clustered)
 
 axes[0].imshow(image)
-axes[1].imshow(clustered)
 plt.show()
