@@ -6,13 +6,13 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-IMAGE = "kirby.png" # file we are analyzing ... should only be about 32 x 32 sadly
+IMAGE = "triangle.png" # file we are analyzing ... should only be about 32 x 32 sadly
 
 image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_GRAYSCALE) # read image into numpy array
 
 H, W = image.shape[0], image.shape[1] # height and width of image
 N = H * W # N = height * width
-K = 2 # cluster counts
+K = 3 # cluster counts
 n = 6 # hardware precision of annealer coupling / bias
 LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda cluster constraint
 # SCALE = (2 ** n - 2) / ((N - K) * (K - 2 if K > 2 else K)) # calculate required magnitude scaling
@@ -60,16 +60,22 @@ response = QBSolv().sample_ising(h, J, verbosity=2) # sample / solve Ising probl
 
 print(response)
 
-clusters = list(response.samples())[0] # store clustering assignments
+clusters = list(response.samples())[-1] # store clustering assignments
 clustered = np.zeros(N) # initialize empty array
+intensities = [(255.0 / (K-1)) * i for i in range(K)] # prepare intensities for displaying k clusters (from 0 to 255)
 
+# mark cluster assignments for visualization
 for key in clusters.keys():
+    # extract pixel number and cluster assignments (var. number format is {pixel}{cluster})
     key_str = str(key)
-    if key == 0: key_str = "00"
-    if key == 1: key_str = "01"
+    # since pixel #0 cluster assignments will break this format (only {cluster}), fix manually
+    if len(key_str) == 1:
+        key_str = "0%s" % key_str
+    # extract all parameters from single number!
     key_pix, key_cluster, key_status = int(key_str[:-1]), int(key_str[-1:]), clusters[key]
+    # if spin / state is +1, fill in cluster indicated by variable
     if key_status == 1:
-        clustered[key_pix] = 255
+        clustered[key_pix] = intensities[key_cluster]
 
 clustered = np.reshape(clustered, (H, W))
 
