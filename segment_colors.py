@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-IMAGE = "kirby.png" # file we are analyzing ... should only be about 32 x 32 sadly
+IMAGE = "rgb.png" # file we are analyzing ... should only be about 32 x 32 sadly
 
 image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_COLOR) # read image into numpy array
 
@@ -16,7 +16,7 @@ C = image.shape[2] # get channel count (data dimensionality)
 K = 3 # cluster counts
 n = 6 # hardware precision of annealer coupling / bias
 LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda cluster constraint
-SCALE = 1
+SCALE = 255
 
 print("Scaling all loss to %f" % SCALE)
 
