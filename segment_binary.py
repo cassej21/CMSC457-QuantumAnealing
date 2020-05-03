@@ -6,14 +6,14 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-IMAGE = "kirby.png" # file we are analyzing ... should only be about 32 x 32 sadly
+IMAGE = "thezucc64.png" # file we are analyzing ... should only be about 32 x 32 sadly
 
 image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_GRAYSCALE) # read image into numpy array
 
 H, W = image.shape[0], image.shape[1] # height and width of image
 N = H * W # N = height * width
 K = 2 # cluster counts
-SCALE = .5
+SCALE = 900
 
 print("Scaling all loss to %f" % SCALE)
 
