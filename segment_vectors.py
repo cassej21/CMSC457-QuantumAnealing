@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from os import path
 
-DATA = path.join("iris", "iris.data") # path to data file
+DATA = path.join("iris", "bezdekIris.data") # path to data file
 
 vectors = None # Collection of D n-dimensional vectors. Must be of shape (D, n)
 
@@ -88,6 +88,9 @@ print(response)
 clusters = list(response.samples()) # store clustering assignments
 clustered = np.zeros(N)
 
+accuracies = [] # record accuracies of every given solution
+assignments = [] # record corresponding assignments
+
 for i, clustering in enumerate(clusters): # for every low-energy solution...
     clustered = np.zeros(N) # initialize empty array
 
@@ -104,4 +107,19 @@ for i, clustering in enumerate(clusters): # for every low-energy solution...
         if key_status == 1:
             clustered[key_pix] = key_cluster
 
-    print(clustered)
+    # Count matches
+    matches = np.sum(np.where(clustered == labels, 1, 0))
+    percent = matches / N
+
+    # Record accuracy
+    accuracies.append(percent)
+
+    # Record assignment
+    assignments.append(clustered)
+
+accuracies = np.array(accuracies)
+
+print(accuracies)
+
+print("Highest accuracy: %f percent" % (np.max(accuracies) * 100))
+print("Associated clustering: %s" % str(assignments[np.argmax(accuracies)]))
