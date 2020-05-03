@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-IMAGE = "thezucc64.png" # file we are analyzing ... should only be about 32 x 32 sadly
+IMAGE = "jon.jpg" # file we are analyzing ... should only be about 32 x 32 sadly
 
 image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_GRAYSCALE) # read image into numpy array
 
@@ -16,6 +16,9 @@ N = H * W # N = height * width
 K = 2 # cluster counts
 SCALE = 900
 
+SNR = np.linalg.norm(np.mean(np.mean(image, axis=0), axis=0)) / np.linalg.norm(np.std(np.std(image, axis=0), axis=0))
+
+print("Found input SNR to be %f." % SNR)
 print("Scaling all loss to %f" % SCALE)
 
 pixels = np.squeeze(np.reshape(image, (1, -1))) # flatten image into 1-D array

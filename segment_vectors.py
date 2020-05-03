@@ -6,32 +6,47 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from os import path
 
-IMAGE = "noise.png" # file we are analyzing ... should only be about 32 x 32 sadly
+DATA = path.join("iris", "iris.data") # path to data file
 
-image = cv2.imread("images/%s" % IMAGE, cv2.IMREAD_COLOR) # read image into numpy array
+vectors = None # Collection of D n-dimensional vectors. Must be of shape (D, n)
 
-H, W = image.shape[0], image.shape[1] # height and width of image
-N = H * W # N = height * width
-C = image.shape[2] # get channel count (data dimensionality)
+# Parse data file.
+fi = open(path.join("datasets", DATA))
+lines = [line.strip().split(',') for line in fi.readlines() if line.strip() != '']
+
+values = [[float(entry) for entry in line[:-1]] for line in lines]
+name_numbers = { 'Iris-setosa': 0, 'Iris-versicolor': 1, 'Iris-virginica': 2 }
+labels = [name_numbers[line[-1]] for line in lines]
+
+values = np.array(values)
+
+# "Load" parsed dataset.
+vectors = values
+
+if vectors is None or len(vectors.shape) != 2:
+    print("Specify a valid dataset first.")
+    exit()
+
+N, C = vectors.shape # Number of vectors and their dimensionality (C for "channels").
 K = 3 # cluster counts
-n = 10 # hardware precision of annealer coupling / bias
+n = 7 # hardware precision of annealer coupling / bias
 LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda cluster constraint
-SCALE = 255
+SCALE = 1
 
-SNR = np.linalg.norm(np.mean(np.mean(image, axis=0), axis=0)) / np.linalg.norm(np.std(np.std(image, axis=0), axis=0))
+SNR = np.linalg.norm(np.mean(np.mean(vectors, axis=0), axis=0)) / np.linalg.norm(np.std(np.std(vectors, axis=0), axis=0))
 
 print("Found input SNR to be %f." % SNR)
 print("Scaling all loss to %f" % SCALE)
 
-pixels = np.squeeze(np.reshape(image, (N, C))) # enumerate all N vectors
 diffs = np.zeros((N, N)) # store pairwise differences
 sums = np.zeros(N) # store sum of all pairwise differences relative to i-th pixel
 
 print("Calculating pairwise differences...")
 
-for idx, pix in tqdm(enumerate(pixels)): # for all pixels in the image...
-    diffs[idx] = np.linalg.norm((pixels - pix), axis=1) * SCALE / 442 # assign pairwise difference for all pixels, scaled accordingly
+for idx, vec in tqdm(enumerate(vectors)): # for all pixels in the image...
+    diffs[idx] = np.linalg.norm((vectors - vec), axis=1) * SCALE # assign pairwise difference for all pixels, scaled accordingly
     sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th pixel
 
 h = {} # intrinsic weight matrix
@@ -71,8 +86,7 @@ response = QBSolv().sample_ising(h, J, verbosity=2) # sample / solve Ising probl
 print(response)
 
 clusters = list(response.samples()) # store clustering assignments
-fig, axes = plt.subplots(1, len(clusters) + 1) # create plot to map all resulting samples
-intensities = [(255.0 / (K-1)) * i for i in range(K)] # prepare intensities for displaying k clusters (from 0 to 255)
+clustered = np.zeros(N)
 
 for i, clustering in enumerate(clusters): # for every low-energy solution...
     clustered = np.zeros(N) # initialize empty array
@@ -88,10 +102,6 @@ for i, clustering in enumerate(clusters): # for every low-energy solution...
         key_pix, key_cluster, key_status = int(key_str[:-1]), int(key_str[-1:]), clustering[key]
         # if spin / state is +1, fill in cluster indicated by variable
         if key_status == 1:
-            clustered[key_pix] = intensities[key_cluster]
+            clustered[key_pix] = key_cluster
 
-    clustered = np.reshape(clustered, (H, W))
-    axes[i + 1].imshow(clustered)
-
-axes[0].imshow(image)
-plt.show()
+    print(clustered)

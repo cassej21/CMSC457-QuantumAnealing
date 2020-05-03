@@ -19,6 +19,9 @@ LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda clu
 # SCALE = (2 ** n - 2) / ((N - K) * (K - 2 if K > 2 else K)) # calculate required magnitude scaling
 SCALE = 255
 
+SNR = np.linalg.norm(np.mean(np.mean(image, axis=0), axis=0)) / np.linalg.norm(np.std(np.std(image, axis=0), axis=0))
+
+print("Found input SNR to be %f." % SNR)
 print("Scaling all loss to %f" % SCALE)
 
 pixels = np.squeeze(np.reshape(image, (1, -1))) # flatten image into 1-D array
