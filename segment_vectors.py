@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from os import path
+from itertools import permutations
 
 DATA = path.join("iris", "bezdekIris.data") # path to data file
 
@@ -35,9 +36,9 @@ n = 7 # hardware precision of annealer coupling / bias
 LAMBDA = (2 ** (n-1) - 1) / (2 * (K - 2 if K > 2 else K)) # calculate lambda cluster constraint
 SCALE = 1 # scale loss by...
 
-PARAM_MIN = 0 # minimum value of param
-PARAM_MAX = 1 # maximum value of param
-STEP = 0.05 # step to vary param by
+PARAM_MIN = 1 # minimum value of param
+PARAM_MAX = 2 # maximum value of param
+STEP = 0.5 # step to vary param by
 
 peaks = [] # record all peak accuracies
 scales = [] # record associated scales
@@ -96,7 +97,10 @@ for SCALE in tqdm(np.arange(PARAM_MIN, PARAM_MAX, STEP)):
     accuracies = [] # record accuracies of every given solution
     assignments = [] # record corresponding assignments
 
+    possible_labels = set(permutations(range(K))) # generate all possible permutations of clusters
+
     for i, clustering in enumerate(clusters): # for every low-energy solution...
+        curr_max = float('-inf') # current max accuracy achieved with permutation
         clustered = np.zeros(N) # initialize empty array
 
         # mark cluster assignments for visualization
@@ -108,16 +112,21 @@ for SCALE in tqdm(np.arange(PARAM_MIN, PARAM_MAX, STEP)):
                 key_str = "0%s" % key_str
             # extract all parameters from single number!
             key_pix, key_cluster, key_status = int(key_str[:-1]), int(key_str[-1:]), clustering[key]
-            # if spin / state is +1, fill in cluster indicated by variable
-            if key_status == 1:
-                clustered[key_pix] = key_cluster
 
-        # Count matches
-        matches = np.sum(np.where(clustered == labels, 1, 0))
-        percent = matches / N
+            for label_set in possible_labels:
+                # if spin / state is +1, fill in cluster indicated by variable
+                if key_status == 1:
+                    clustered[key_pix] = label_set[key_cluster] # replace with permuted cluster label possibility
+
+                # Count matches
+                matches = np.sum(np.where(clustered == labels, 1, 0))
+                percent = matches / N
+            
+            # Update maximum accuracy if this permutation is better
+            if percent > curr_max: curr_max = percent
 
         # Record accuracy
-        accuracies.append(percent)
+        accuracies.append(curr_max)
 
         # Record assignment
         assignments.append(clustered)
