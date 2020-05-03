@@ -141,14 +141,18 @@ print(peaks)
 print(scales)
 
 # Find best-fit polynomial for data
-poly = np.poly1d(np.polyfit(scales, peaks, 10))
-param_x = np.linspace(PARAM_MIN, PARAM_MAX, 100)
+# poly = np.poly1d(np.polyfit(scales, peaks, 10))
+# param_x = np.linspace(PARAM_MIN, PARAM_MAX, 100)
 
 # Plot accuracy points and line of best fit
 plt.scatter(scales, peaks)
-plt.plot(param_x, poly(param_x), 'r--')
+# plt.plot(param_x, poly(param_x), 'r--')
 plt.ylim(0,100)
+
+plt.xticks(np.arange(PARAM_MIN, PARAM_MAX, STEP))
 plt.yticks(np.arange(0, 100, 10))
+
 plt.xlabel("Scale")
 plt.ylabel("Accuracy")
+
 plt.show()
