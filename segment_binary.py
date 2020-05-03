@@ -5,6 +5,7 @@ from dwave_qbsolv import *
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 IMAGE = "thezucc64.png" # file we are analyzing ... should only be about 32 x 32 sadly
 
@@ -21,13 +22,18 @@ pixels = np.squeeze(np.reshape(image, (1, -1))) # flatten image into 1-D array
 diffs = np.zeros((N, N)) # store pairwise differences
 sums = np.zeros(N) # store sum of all pairwise differences relative to i-th pixel
 
-for idx, pix in enumerate(pixels): # for all pixels in the image...
+print("Calculating pairwise differences...")
+
+for idx, pix in tqdm(enumerate(pixels)): # for all pixels in the image...
     diffs[idx] = (pixels - pix) * SCALE / 255 # assign pairwise difference for all pixels, scaled accordingly
     sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th pixel
 
 h = {}
 J = {}
-for i in range(N):
+
+print("Assigning pairwise cluster weights...")
+
+for i in tqdm(range(N)):
     for j in range(N):
         J[(i, j)] = 0.5 * diffs[i][j]
     
