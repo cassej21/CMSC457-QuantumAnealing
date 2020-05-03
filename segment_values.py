@@ -5,6 +5,7 @@ from dwave_qbsolv import *
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 IMAGE = "gradient.png" # file we are analyzing ... should only be about 32 x 32 sadly
 
@@ -24,15 +25,19 @@ pixels = np.squeeze(np.reshape(image, (1, -1))) # flatten image into 1-D array
 diffs = np.zeros((N, N)) # store pairwise differences
 sums = np.zeros(N) # store sum of all pairwise differences relative to i-th pixel
 
-for idx, pix in enumerate(pixels): # for all pixels in the image...
+print("Calculating pairwise differences...")
+
+for idx, pix in tqdm(enumerate(pixels)): # for all pixels in the image...
     diffs[idx] = (pixels - pix) * SCALE / 255 # assign pairwise difference for all pixels, scaled accordingly
     sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th pixel
 
 h = {} # intrinsic weight matrix
 J = {} # coupling weight matrix
 
+print("Assigning pairwise clustering weights...")
+
 # assign general pairwise clustering weights - both biases and couplings
-for k in range(K): # for every cluster we have...
+for k in tqdm(range(K)): # for every cluster we have...
     for i in range(N): # for every pixel in the image...
         for j in range(N): # and every pixel it might be paired with...
             # give each binary variable an unique number
@@ -43,8 +48,10 @@ for k in range(K): # for every cluster we have...
             else:
                 J[(var_i, var_j)] = 0.5 * diffs[i][j] # the weighting for a cluster assignment for two vars is half their "distance"
 
+print("Assigning pairwise cluster possibility weights...")
+
 # assign pairwise clustering variables per pixel
-for i in range(N):
+for i in tqdm(range(N)):
     for a in range(K):
         for b in range(K):
             if a != b:
