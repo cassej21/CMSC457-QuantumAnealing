@@ -38,7 +38,7 @@ SCALE = 1 # scale loss by...
 
 PARAM_MIN = 0 # minimum value of param
 PARAM_MAX = 1 # maximum value of param
-STEP = 0.05 # step to vary param by
+STEP = 0.1 # step to vary param by
 
 peaks = [] # record all peak accuracies
 scales = [] # record associated scales
@@ -122,8 +122,8 @@ for SCALE in tqdm(np.arange(PARAM_MIN, PARAM_MAX, STEP)):
                 matches = np.sum(np.where(clustered == labels, 1, 0))
                 percent = matches / N
             
-            # Update maximum accuracy if this permutation is better
-            if percent > curr_max: curr_max = percent
+                # Update maximum accuracy if this permutation is better
+                if percent > curr_max: curr_max = percent
 
         # Record accuracy
         accuracies.append(curr_max)
