@@ -1,3 +1,5 @@
+# BEFORE RUNNING FILE, cd into the tests directory to make imports work.
+
 import sys
 from os import path
 sys.path.append(path.realpath('../'))

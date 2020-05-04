@@ -149,7 +149,7 @@ def ising_k(vectors, labels, clusters=3, hardware_precision=7, scale_range=np.ar
             ha="center"
         )
 
-    plt.xticks(scale_range)
+    plt.xticks(np.arange(PARAM_MIN, PARAM_MAX, STEP))
     plt.yticks(np.arange(0, 100, 10))
 
     plt.xlabel("Scale")
