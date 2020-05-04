@@ -27,13 +27,15 @@ def ising_k(vectors, labels, clusters=3, hardware_precision=7, scale_range=np.ar
         print("Scaling all loss to %f" % SCALE)
 
         diffs = np.zeros((N, N)) # store pairwise differences
-        sums = np.zeros(N) # store sum of all pairwise differences relative to i-th pixel
+        sums = np.zeros(N) # store sum of all pairwise differences relative to i-th vector
+        maxes = np.zeros(N) # store maximum of all pairwise differences relative to i-th vector
 
         print("Calculating pairwise differences...")
 
         for idx, vec in tqdm(enumerate(vectors)): # for all pixels in the image...
             diffs[idx] = np.linalg.norm((vectors - vec), axis=1) * SCALE # assign pairwise difference for all pixels, scaled accordingly
-            sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th pixel
+            sums[idx] = np.sum(diffs[idx]) # assign sum of all pairwise differences relative to i-th vector
+            maxes[idx] = np.max(diffs[idx]) # assign max of all pairwise differneces relative to i-th vector
 
         h = {} # intrinsic weight matrix
         J = {} # coupling weight matrix
